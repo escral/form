@@ -5,8 +5,10 @@ export default defineConfig({
     resolve: {
         extensions: ['.ts'],
         alias: {
-            '~': path.resolve(__dirname, './src'),
             '~tests': path.resolve(__dirname, './tests'),
+            '#shared': path.resolve(__dirname, './shared'),
+            '#server': path.resolve(__dirname, './server'),
+            '#client': path.resolve(__dirname, './client'),
         },
     },
 })
