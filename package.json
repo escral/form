@@ -7,7 +7,14 @@
     "module": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "exports": {
-        ".": "./dist/index.js",
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        },
+        "./vue": {
+            "types": "./dist/vue/index.d.ts",
+            "import": "./dist/vue/index.js"
+        },
         "./package.json": "./package.json"
     },
     "author": "Alexander Topalo <topaloalexander@gmail.com>",
