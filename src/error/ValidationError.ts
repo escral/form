@@ -1,11 +1,12 @@
 import type Errors from '~/lib/Errors'
+import type { ErrorsObject } from '~/lib/Errors'
 
 export default class ValidationError extends Error {
     public constructor(
         public errors: Errors,
         message = 'Validation failed',
     ) {
-        const formatted = ValidationError.formatErrors(errors)
+        const formatted = ValidationError.formatErrors(errors.all())
 
         super(message + '\n' + formatted)
     }
@@ -13,13 +14,13 @@ export default class ValidationError extends Error {
     /**
      * Format errors into a readable string.
      */
-    public static formatErrors(errors: Errors, indent = 4): string {
+    public static formatErrors(errors: ErrorsObject, indent = 4): string {
         let formatted = ''
 
         const indentation = ' '.repeat(indent)
 
-        for (const field in errors.all()) {
-            const fieldErrors = errors.get(field)
+        for (const field in errors) {
+            const fieldErrors = errors[field]
 
             formatted += `${indentation}${field}:\n`
 
