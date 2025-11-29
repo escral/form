@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import Errors from '#shared/lib/Errors'
+import Errors, { type ErrorsObject } from '#shared/lib/Errors'
 
 export function zodErrorToFormErrors(zodError: z.ZodError | undefined): Errors {
     const errors = new Errors()
@@ -8,15 +8,19 @@ export function zodErrorToFormErrors(zodError: z.ZodError | undefined): Errors {
         return errors
     }
 
+    const errorsObject: ErrorsObject = {}
+
     for (const issue of zodError.issues) {
         const path = issue.path.join('.')
 
-        if (!errors.has(path)) {
-            errors.record({
-                [path]: [issue.message],
-            })
+        if (!errorsObject[path]) {
+            errorsObject[path] = []
         }
+
+        errorsObject[path].push(issue.message)
     }
+
+    errors.record(errorsObject)
 
     return errors
 }

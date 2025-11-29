@@ -4,7 +4,7 @@ import { validateDataUsingZod } from '#server/utils/validateDataUsingZod'
 import ValidationError from '#server/error/ValidationError'
 
 describe('validateDataUsingZod', () => {
-    test('valid', () => {
+    test('returns parsed data for valid input', () => {
         const someInput = { name: 'John' }
 
         const schema = z.object({
@@ -16,13 +16,67 @@ describe('validateDataUsingZod', () => {
         expect(validInput).toEqual({ name: 'John' })
     })
 
-    test('invalid', () => {
-        const someInput = { name: 123 }
+    test('throws ValidationError for invalid input', () => {
+        const someInput = { name: 123, age: 'not a number' }
 
         const schema = z.object({
             name: z.string(),
+            age: z.number(),
         })
 
-        expect(() => validateDataUsingZod(someInput, schema)).toThrow(ValidationError)
+        try {
+            validateDataUsingZod(someInput, schema)
+            expect.fail('Should have thrown ValidationError')
+        } catch (error: any) {
+            expect(error).toBeInstanceOf(ValidationError)
+            const validationError = error as ValidationError
+            expect(validationError.errors.has('name')).toBe(true)
+            expect(validationError.errors.has('age')).toBe(true)
+        }
+    })
+
+    test('throws ValidationError for invalid nested object', () => {
+        const someInput = {
+            user: {
+                name: 123,
+                age: 'not a number',
+            },
+        }
+
+        const schema = z.object({
+            user: z.object({
+                name: z.string(),
+                age: z.number(),
+            }),
+        })
+
+        try {
+            validateDataUsingZod(someInput, schema)
+            expect.fail('Should have thrown ValidationError')
+        } catch (error) {
+            expect(error).toBeInstanceOf(ValidationError)
+            const validationError = error as ValidationError
+            expect(validationError.errors.has('user.name')).toBe(true)
+            expect(validationError.errors.has('user.age')).toBe(true)
+        }
+    })
+
+    test('throws ValidationError for invalid array', () => {
+        const someInput = {
+            users: ['John', 123],
+        }
+
+        const schema = z.object({
+            users: z.array(z.string()),
+        })
+
+        try {
+            validateDataUsingZod(someInput, schema)
+            expect.fail('Should have thrown ValidationError')
+        } catch (error) {
+            expect(error).toBeInstanceOf(ValidationError)
+            const validationError = error as ValidationError
+            expect(validationError.errors.has('users.1')).toBe(true)
+        }
     })
 })
