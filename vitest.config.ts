@@ -6,9 +6,7 @@ export default defineConfig({
         extensions: ['.ts'],
         alias: {
             '~tests': path.resolve(__dirname, './tests'),
-            '#shared': path.resolve(__dirname, './shared'),
-            '#server': path.resolve(__dirname, './server'),
-            '#client': path.resolve(__dirname, './client'),
+            '~': path.resolve(__dirname, './src'),
         },
     },
 })
