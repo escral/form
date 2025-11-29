@@ -26,7 +26,7 @@ export default class Form<
     declare public data: TData
     declare public initialData: TData
 
-    public errors: Errors<Extract<keyof TData, string>> = new Errors<Extract<keyof TData, string>>()
+    public errors: Errors<Extract<keyof TData, string>> = reactive(new Errors<Extract<keyof TData, string>>()) as Errors<Extract<keyof TData, string>>
 
     public loading: Ref<boolean> = ref(false)
     public error: Ref<unknown> = ref<unknown>()
