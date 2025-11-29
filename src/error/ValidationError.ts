@@ -1,4 +1,4 @@
-import type Errors from '#shared/lib/Errors'
+import type Errors from '~/lib/Errors'
 
 export default class ValidationError extends Error {
     public constructor(

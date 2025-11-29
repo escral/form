@@ -6,8 +6,8 @@ import {
     beforeEach,
 } from 'vitest'
 
-import Form from '#client/lib/Form'
-import FormField from '#client/lib/FormField'
+import Form from '~/vue/lib/Form'
+import FormField from '~/vue/lib/FormField'
 
 type TestData = {
     user: {

@@ -1,6 +1,6 @@
 import type { z } from 'zod'
-import { zodErrorToFormErrors } from '#server/utils/zodErrorToFormErrors'
-import ValidationError from '#server/error/ValidationError'
+import { zodErrorToFormErrors } from '~/utils/zodErrorToFormErrors'
+import ValidationError from '~/error/ValidationError'
 
 export function validateDataUsingZod<T>(data: unknown, schema: z.ZodTypeAny<T>, message?: string): T {
     const {

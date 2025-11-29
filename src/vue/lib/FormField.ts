@@ -1,5 +1,5 @@
-import type Form from '#client/lib/Form'
-import { getProp, setProp } from '#shared/utils/object'
+import type Form from '~/vue/lib/Form'
+import { getProp, setProp } from '~/helpers/object'
 
 export default class FormField<TValue = unknown> {
     public declare path: string

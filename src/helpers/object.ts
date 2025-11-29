@@ -1,4 +1,4 @@
-import type { AnyObject } from '#shared/types/utils'
+import type { AnyObject } from '~/types/utils'
 
 export const updateProps = (oldProps: AnyObject, newProps: AnyObject): void => {
     for (const prop of Object.keys(newProps)) {

@@ -1,7 +1,7 @@
-import type { AnyObject, PropsPathSimple, PropType } from '#shared/types/utils'
-import FormField from '#client/lib/FormField'
-import type Form from '#client/lib/Form'
-import { getProp } from '#shared/utils/object'
+import type { AnyObject, PropsPathSimple, PropType } from '~/types/utils'
+import FormField from '~/vue/lib/FormField'
+import type Form from '~/vue/lib/Form'
+import { getProp } from '~/helpers/object'
 
 type FormFieldsView<TData extends AnyObject, TPath extends PropsPathSimple<TData>> =
     PropType<TData, TPath> extends Array<any>

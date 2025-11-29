@@ -1,9 +1,9 @@
-import Errors, { type ErrorsObject } from '#shared/lib/Errors'
-import { templateString, toHumanPhrase } from '#shared/utils/string'
-import { getProp, isEqual, makeDestructurableClass, updateProps } from '#shared/utils/object'
+import Errors, { type ErrorsObject } from '~/lib/Errors'
+import { templateString, toHumanPhrase } from '~/helpers/string'
+import { getProp, isEqual, makeDestructurableClass, updateProps } from '~/helpers/object'
 import type { MaybeRefOrGetter, Ref } from 'vue'
 import { reactive, ref, toRaw, toValue } from 'vue'
-import type { AnyObject } from '#shared/types/utils'
+import type { AnyObject } from '~/types/utils'
 
 type UseSubmitOptions = {
     onError?: (e: unknown) => void | false

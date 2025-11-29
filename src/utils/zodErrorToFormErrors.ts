@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import Errors, { type ErrorsObject } from '#shared/lib/Errors'
+import Errors, { type ErrorsObject } from '~/lib/Errors'
 
 export function zodErrorToFormErrors(zodError: z.ZodError | undefined): Errors {
     const errors = new Errors()

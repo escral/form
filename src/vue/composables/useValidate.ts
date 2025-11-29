@@ -1,6 +1,6 @@
-import type { ValidationRule } from '#client/lib/Form'
-import Errors, { type ErrorsObject, type UnparsedErrorsObject } from '#shared/lib/Errors'
-import { templateString, toHumanPhrase } from '#shared/utils/string'
+import type { ValidationRule } from '~/vue/lib/Form'
+import Errors, { type ErrorsObject, type UnparsedErrorsObject } from '~/lib/Errors'
+import { templateString, toHumanPhrase } from '~/helpers/string'
 
 export function useValidate(value: any, validationRule: ValidationRule | ValidationRule[]): ErrorsObject {
     const validationHandlers: ValidationRule[] = []

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { z } from 'zod'
-import { validateDataUsingZod } from '#server/utils/validateDataUsingZod'
-import ValidationError from '#server/error/ValidationError'
+import { validateDataUsingZod } from '~/utils/validateDataUsingZod'
+import ValidationError from '~/error/ValidationError'
 
 describe('validateDataUsingZod', () => {
     test('returns parsed data for valid input', () => {

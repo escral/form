@@ -8,8 +8,8 @@ import {
     afterAll,
 } from 'vitest'
 
-import Form from '#client/lib/Form'
-import Errors from '#shared/lib/Errors'
+import Form from '~/vue/lib/Form'
+import Errors from '~/lib/Errors'
 
 type TestData = {
     name: string
