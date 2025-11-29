@@ -12,8 +12,8 @@ importers:
         specifier: ^2.0
         version: 2.0.10(jiti@2.6.1)(vue@3.5.25(typescript@5.9.3))
       '@escral/tsconfig':
-        specifier: ^0.2.1
-        version: 0.2.1
+        specifier: ^0.3.0
+        version: 0.3.0
       '@escral/versioning':
         specifier: ^1.5
         version: 1.5.0
@@ -226,8 +226,8 @@ packages:
     peerDependencies:
       vue: ^3
 
-  '@escral/tsconfig@0.2.1':
-    resolution: {integrity: sha512-NTCZzjMByAKXCK8ys2pw2vVLba3+QNlFTFMAhWoFYAbN3uQoaf+IECn/Vtc/ezzCXBszcFLql+ISUmIKawkJcw==}
+  '@escral/tsconfig@0.3.0':
+    resolution: {integrity: sha512-R5XV5fWt3Y7vdyaKDt28qnKyJzsbFikqW8uEHp64PLrrLi+bmgHdz8a0ndzISk6elCGjDD5qTbhhGBRj/pNa1Q==}
 
   '@escral/versioning@1.5.0':
     resolution: {integrity: sha512-ZpQjNazPyeVv2F1l16VRdbFvKuFXfa+D6/wmHw9iIWAowrKvyesio9bO8tCLCTrDLe3gNOuqIwX6g+ikHjgbZw==}
@@ -1816,7 +1816,7 @@ snapshots:
       - jiti
       - supports-color
 
-  '@escral/tsconfig@0.2.1': {}
+  '@escral/tsconfig@0.3.0': {}
 
   '@escral/versioning@1.5.0':
     dependencies:

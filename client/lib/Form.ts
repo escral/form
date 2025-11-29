@@ -1,7 +1,7 @@
 import Errors, { type ErrorsObject } from '#shared/lib/Errors'
 import { templateString, toHumanPhrase } from '#shared/utils/string'
 import { getProp, isEqual, makeDestructurableClass, updateProps } from '#shared/utils/object'
-import type { MaybeRefOrGetter } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 import { reactive, ref, toRaw, toValue } from 'vue'
 import type { AnyObject } from '#shared/types/utils'
 
@@ -26,22 +26,22 @@ export default class Form<
     declare public data: TData
     declare public initialData: TData
 
-    public errors = new Errors<Extract<keyof TData, string>>()
+    public errors: Errors<Extract<keyof TData, string>> = new Errors<Extract<keyof TData, string>>()
 
-    public loading = ref(false)
-    public error = ref<unknown>()
-    public sent = ref(false)
+    public loading: Ref<boolean> = ref(false)
+    public error: Ref<unknown> = ref<unknown>()
+    public sent: Ref<boolean> = ref(false)
 
     //
 
-    public constructor(initialData: TData, private validationRules?: MaybeRefOrGetter<ValidationRulesSet>) {
+    public constructor(initialData: TData, private validationRules?: MaybeRefOrGetter<ValidationRulesSet> | undefined) {
         const rawInitialData: any = toRaw(initialData)
 
         this.data = reactive(structuredClone(rawInitialData))
         this.initialData = structuredClone(rawInitialData)
     }
 
-    protected logger = console
+    protected logger: typeof console = console
 
     // Initial data
 
@@ -51,7 +51,7 @@ export default class Form<
      * Updates the initial data.
      * If no data is provided, the current data will be used.
      */
-    public updateInitialData(newData?: TData) {
+    public updateInitialData(newData?: TData): void {
         this.initialData = structuredClone(toRaw(newData ?? this.data)) as TData
 
         this.initialDataChangeCount.value++
@@ -66,14 +66,14 @@ export default class Form<
     /**
      * Update the data in the object with new values.
      */
-    public updateData(newData: Partial<TData>) {
+    public updateData(newData: Partial<TData>): void {
         updateProps(this.data, newData)
     }
 
     /**
      * Resets the form to its initial state.
      */
-    public reset() {
+    public reset(): void {
         Object.keys(this.initialData).forEach(key => {
             // @ts-ignore
             this.data[key] = structuredClone(this.initialData?.[key])

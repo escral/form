@@ -27,7 +27,7 @@
     },
     "devDependencies": {
         "@escral/lint": "^2.0",
-        "@escral/tsconfig": "^0.2.1",
+        "@escral/tsconfig": "^0.3.0",
         "@escral/versioning": "^1.5",
         "@types/node": "^22.10",
         "tsdown": "^0.15.9",

@@ -5,6 +5,6 @@ import type { AnyObject } from '#shared/types/utils'
 
 export function useForm<
     TData extends AnyObject,
->(initialData: TData, validationRulesSet?: MaybeRefOrGetter<ValidationRulesSet>) {
+>(initialData: TData, validationRulesSet?: MaybeRefOrGetter<ValidationRulesSet>): Form<TData> {
     return markRaw(new Form<TData>(initialData, validationRulesSet))
 }

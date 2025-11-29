@@ -2,7 +2,7 @@ import type { ValidationRule } from '#client/lib/Form'
 import Errors, { type ErrorsObject, type UnparsedErrorsObject } from '#shared/lib/Errors'
 import { templateString, toHumanPhrase } from '#shared/utils/string'
 
-export function useValidate(value: any, validationRule: ValidationRule | ValidationRule[]) {
+export function useValidate(value: any, validationRule: ValidationRule | ValidationRule[]): ErrorsObject {
     const validationHandlers: ValidationRule[] = []
 
     if (validationRule) {

@@ -14,14 +14,14 @@ export default class Errors<TFields extends string = string> {
     /**
      * Get all the errors.
      */
-    public all() {
+    public all(): ErrorsObject<TFields> {
         return this.errors
     }
 
     /**
      * Determine if any errors exists for the given field or object.
      */
-    public has(field: TFields) {
+    public has(field: TFields): boolean {
         let hasError = field in this.errors
 
         if (!hasError) {
@@ -33,7 +33,7 @@ export default class Errors<TFields extends string = string> {
         return hasError
     }
 
-    public first(field?: TFields) {
+    public first(field?: TFields): string | undefined {
         if (!field) {
             const keys = Object.keys(this.errors)
 
@@ -47,7 +47,7 @@ export default class Errors<TFields extends string = string> {
         return this.get(field)[0]
     }
 
-    public get(field: TFields) {
+    public get(field: TFields): string[] {
         return this.errors[field] || []
     }
 
@@ -71,7 +71,7 @@ export default class Errors<TFields extends string = string> {
     /**
      * Record the new errors.
      */
-    public record(errors: UnparsedErrorsObject = {}) {
+    public record(errors: UnparsedErrorsObject = {}): void {
         this.clear()
 
         this.traverse(errors)
@@ -104,14 +104,14 @@ export default class Errors<TFields extends string = string> {
         })
     }
 
-    public add(errors: UnparsedErrorsObject) {
+    public add(errors: UnparsedErrorsObject): void {
         this.traverse(errors, '', true)
     }
 
     /**
      * Clear a specific field, object or all error fields.
      */
-    public clear(field?: string) {
+    public clear(field?: string): void {
         if (!field) {
             Object.keys(this.errors).forEach(e => delete this.errors[e])
 
@@ -123,7 +123,7 @@ export default class Errors<TFields extends string = string> {
             .forEach(e => delete this.errors[e])
     }
 
-    public slice(namespace: string) {
+    public slice(namespace: string): Errors<TFields> {
         const errors: ErrorsObject = {}
 
         Object.keys(this.errors).forEach(key => {

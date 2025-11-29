@@ -20,15 +20,15 @@ export default class FormField<TValue = unknown> {
     // Errors
     // ==============================
 
-    public get errors() {
+    public get errors(): string[] {
         return this.form.errors.get(this.path)
     }
 
-    public get error() {
+    public get error(): string | undefined {
         return this.form.errors.first(this.path)
     }
 
-    public get hasError() {
+    public get hasError(): boolean {
         return this.form.errors.has(this.path)
     }
 }

@@ -1,4 +1,4 @@
-export const toHumanPhrase = (str: string) => {
+export const toHumanPhrase = (str: string): string => {
     if (str.endsWith('_pk')) {
         str = str.replace(/_pk$/, '')
     }
@@ -28,7 +28,7 @@ export const toHumanPhrase = (str: string) => {
     return capitalize(str)
 }
 
-export function capitalize(str: string) {
+export function capitalize(str: string): string {
     const trimmed = str.trim()
 
     if (trimmed.length === 0) {
@@ -38,7 +38,7 @@ export function capitalize(str: string) {
     return trimmed[0].toUpperCase() + trimmed.substring(1)
 }
 
-export function templateString(template: string, replacements: { [key: string]: string } | undefined = undefined) {
+export function templateString(template: string, replacements: { [key: string]: string } | undefined = undefined): string {
     if (!replacements) {
         return template
     }
