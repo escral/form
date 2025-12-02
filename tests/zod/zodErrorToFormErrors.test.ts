@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { z } from 'zod'
-import { zodErrorToFormErrors } from '~/utils/zodErrorToFormErrors'
+import { zodErrorToFormErrors } from '~/zod'
 
 describe('zodErrorToFormErrors', () => {
     test('returns empty Errors when zodError is undefined', () => {

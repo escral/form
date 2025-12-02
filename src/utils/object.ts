@@ -1,5 +1,5 @@
-export function getObjectProp(object: unknown, path: string): unknown {
-    const parts = path.split('.')
+export function getObjectProp(object: unknown, path: string | string[]): unknown {
+    const parts = Array.isArray(path) ? path : path.split('.')
 
     let current: unknown = object
 

@@ -77,8 +77,6 @@ export default class Form<
         this.initialData = structuredClone(rawInitialData)
     }
 
-    protected logger: typeof console = console
-
     // Initial data
 
     private initialDataChangeCount = ref(0)
@@ -196,8 +194,6 @@ export default class Form<
 
                 this.errors.record(allErrors)
 
-                this.logger.warn('Validation failed', allErrors)
-
                 return this.errors
             } else {
                 throw e
@@ -238,8 +234,6 @@ export default class Form<
                 this.sent.value = true
 
                 if (options.resetOnSuccess) {
-                    this.logger.log('Resetting form after success')
-
                     this.reset()
                 }
             } catch (e: unknown) {
