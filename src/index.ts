@@ -10,6 +10,7 @@ export { zodErrorToFormErrors } from '~/utils/zodErrorToFormErrors'
 
 // Types
 export type { AnyObject, PropsPathSimple, PropType } from '~/types/utils'
+export type { ValidationRule, ValidationRulesSet, ValidationMessage } from '~/types/validation'
 
 // Helpers (exported for convenience)
 export { capitalize, templateString, toHumanPhrase } from '~/helpers/string'

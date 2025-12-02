@@ -4,6 +4,7 @@ import { getProp, isEqual, makeDestructurableClass, updateProps } from '~/helper
 import type { MaybeRefOrGetter, Ref } from 'vue'
 import { reactive, ref, toRaw, toValue } from 'vue'
 import type { AnyObject } from '~/types/utils'
+import type { ValidationMessage, ValidationRule, ValidationRulesSet } from '~/types/validation'
 
 type UseSubmitOptions = {
     onError?: (e: unknown) => void | false
@@ -373,14 +374,4 @@ const normalizeErrors = (errors: ValidationMessage, field: string) => {
     }
 
     return result
-}
-
-type ValidationMessage = string | string[] | Record<string, string | string[]>
-
-export type ValidationRule = {
-    (value: any, field: string, form: Record<string, any>): ValidationMessage | null | undefined | void
-}
-
-export type ValidationRulesSet = {
-    [field: string]: ValidationRule | ValidationRule[] | ValidationRulesSet
 }
