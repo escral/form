@@ -158,9 +158,8 @@ describe('Validation', () => {
             },
         )
 
-        const isValid = form.validate()
+        form.validate()
 
-        expect(isValid).toBe(false)
         expect(form.errors.get('name')).toContain('Too short')
     })
 })

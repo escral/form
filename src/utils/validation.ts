@@ -1,5 +1,30 @@
 import type { ValidationMessage, ValidationRule, ValidationRulesSet } from '~/types/validation'
 import type { ErrorsObject, UnparsedErrorsObject } from '~/lib/Errors'
+import type { ZodMiniType } from 'zod/mini'
+import {
+    lazy,
+    string,
+    union,
+    record,
+    array,
+} from 'zod/mini'
+
+const unparsedErrorsObjectSchema: ZodMiniType<UnparsedErrorsObject> = lazy(() =>
+    record(string(), union([
+        string(),
+        array(string()),
+        unparsedErrorsObjectSchema,
+        array(unparsedErrorsObjectSchema),
+    ])),
+)
+
+export function isRecordableErrorsObject(rawErrors: unknown): rawErrors is UnparsedErrorsObject {
+    const parseResult = unparsedErrorsObjectSchema.safeParse(rawErrors)
+
+    return parseResult.success
+}
+
+//
 
 const normalizeRules = (rules: ValidationRule | ValidationRule[]) => {
     return Array.isArray(rules) ? rules : [rules]
@@ -31,12 +56,4 @@ export const normalizeValidationMessage = (errors: ValidationMessage, field: str
     }
 
     return result
-}
-
-export function isUnparsedErrorsObject(obj: unknown): obj is UnparsedErrorsObject {
-    // @todo
-}
-
-export function parseErrors(rawErrors: UnparsedErrorsObject): ErrorsObject {
-    // @todo
 }

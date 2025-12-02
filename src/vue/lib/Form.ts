@@ -11,7 +11,7 @@ import {
 import type { AnyObject } from '~/types/utils'
 import ValidationError from '~/error/ValidationError'
 import { getObjectProp } from '~/utils/object'
-import { isUnparsedErrorsObject, parseErrors } from '~/utils/validation'
+import { isRecordableErrorsObject } from '~/utils/validation'
 
 type UseSubmitOptions = {
     /**
@@ -302,12 +302,19 @@ export default class Form<
         for (const path of paths) {
             const raw = getObjectProp(error, path)
 
-            if (raw && isUnparsedErrorsObject(raw)) {
-                const message = error instanceof Error ? error.message : undefined
-                const errors = new Errors(parseErrors(raw))
-
-                return new ValidationError(errors, message)
+            if (!raw || !isRecordableErrorsObject(raw)) {
+                continue
             }
+
+            const errors = new Errors(raw)
+
+            if (!errors.any()) {
+                continue
+            }
+
+            const message = error instanceof Error ? error.message : undefined
+
+            return new ValidationError(errors, message)
         }
     }
 
