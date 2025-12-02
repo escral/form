@@ -4,6 +4,9 @@
         "paths": {
             "~/*": [
                 "./src/*"
+            ],
+            "@escral/form": [
+                "./src/index"
             ]
         }
     },

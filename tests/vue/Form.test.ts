@@ -1,16 +1,13 @@
-
 import {
     describe,
     it,
     expect,
     vi,
     beforeEach,
-    afterAll,
 } from 'vitest'
 
 import Form from '~/vue/lib/Form'
-import Errors from '~/lib/Errors'
-import { ValidationError } from '~/index'
+import { Errors, ValidationError } from '@escral/form'
 
 type TestData = {
     name: string

@@ -1,5 +1,5 @@
 import type { UnparsedErrorsObject } from '~/lib/Errors'
-import type { ZodMiniType } from 'zod'
+import type { ZodMiniType } from 'zod/mini'
 import {
     array,
     lazy,

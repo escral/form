@@ -1,7 +1,6 @@
-import Errors from '~/lib/Errors'
+import { Errors, ValidationError } from '@escral/form'
 import { isEqual, updateProps } from '~/helpers/object'
 import type { AnyObject } from '~/types/utils'
-import ValidationError from '~/error/ValidationError'
 import { getObjectProp } from '~/utils/object'
 import { isRecordableErrorsObject } from '~/utils/validation'
 import {

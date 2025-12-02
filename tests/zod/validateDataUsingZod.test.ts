@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { z } from 'zod'
-import ValidationError from '~/error/ValidationError'
+import { ValidationError } from '@escral/form'
 import { validateDataUsingZod } from '~/zod'
 
 describe('validateDataUsingZod', () => {

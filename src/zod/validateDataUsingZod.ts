@@ -1,5 +1,5 @@
 import type { z } from 'zod'
-import ValidationError from '~/error/ValidationError'
+import { ValidationError } from '@escral/form'
 import { zodErrorToFormErrors } from '~/zod/zodErrorToFormErrors'
 
 /**

@@ -12,13 +12,13 @@ export default defineConfig([
         format: ['esm'],
         dts: true,
         outDir: 'dist/zod',
-        external: ['zod'],
+        external: ['zod', '@escral/form'],
     },
     {
         entry: ['src/vue/index.ts'],
         format: ['esm'],
         dts: true,
         outDir: 'dist/vue',
-        external: ['vue', 'zod/mini'],
+        external: ['vue', 'zod/mini', '@escral/form'],
     },
 ])
