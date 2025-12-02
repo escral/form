@@ -1,21 +1,50 @@
-import Errors, { type ErrorsObject } from '~/lib/Errors'
-import { templateString, toHumanPhrase } from '~/helpers/string'
-import { getProp, isEqual, makeDestructurableClass, updateProps } from '~/helpers/object'
-import type { MaybeRefOrGetter, Ref } from 'vue'
-import { reactive, ref, toRaw, toValue } from 'vue'
+import Errors from '~/lib/Errors'
+import { isEqual, updateProps } from '~/helpers/object'
+import {
+    reactive,
+    type Ref,
+    ref,
+    type ShallowRef,
+    shallowRef,
+    toRaw,
+} from 'vue'
 import type { AnyObject } from '~/types/utils'
-import type { ValidationMessage, ValidationRule, ValidationRulesSet } from '~/types/validation'
+import ValidationError from '~/error/ValidationError'
+import { getObjectProp } from '~/utils/object'
+import { isUnparsedErrorsObject, parseErrors } from '~/utils/validation'
 
 type UseSubmitOptions = {
+    /**
+     * Called after validation is performed.
+     * If it returns false, the submission is aborted.
+     * If errors are cleared during this callback, submit handler will receive form data instead of validated data.
+     */
+    onAfterValidate?: () => void | false
+    /**
+     * Called when an error occurs during submission, after error has been parsed and recorded.
+     * If it returns false, further error handling is aborted and no error is thrown.
+     */
     onError?: (e: unknown) => void | false
-    onValidate?: () => void | false
+    /**
+     * Resets the form upon successful submission.
+     * @default false
+     */
     resetOnSuccess?: boolean
+    /**
+     * Whether to perform validation before submission.
+     * @default true
+     */
     validate?: boolean
+    /**
+     * If true, suppresses throwing errors after submission failure.
+     * @default false
+     */
     silent?: boolean
-}
-
-type UseSubmitResolverOptions<Result, TData = unknown> = {
-    resolver: (data: TData) => Promise<Result> | Result
+    /**
+     * Function to parse errors from submission failures.
+     * If not provided, the default `parseError` method will be used.
+     */
+    errorParser?: (error: unknown) => ValidationError | undefined
 }
 
 /**
@@ -23,6 +52,7 @@ type UseSubmitResolverOptions<Result, TData = unknown> = {
  */
 export default class Form<
     TData extends AnyObject = AnyObject,
+    TValidatedData = unknown,
 > {
     declare public data: TData
     declare public initialData: TData
@@ -30,12 +60,15 @@ export default class Form<
     public errors: Errors<Extract<keyof TData, string>> = reactive(new Errors<Extract<keyof TData, string>>()) as Errors<Extract<keyof TData, string>>
 
     public loading: Ref<boolean> = ref(false)
-    public error: Ref<unknown> = ref<unknown>()
     public sent: Ref<boolean> = ref(false)
+    public error: ShallowRef<unknown> = shallowRef<unknown>()
 
     //
 
-    public constructor(initialData: TData, private validationRules?: MaybeRefOrGetter<ValidationRulesSet> | undefined) {
+    public constructor(
+        initialData: TData,
+        private validationFn?: (data: unknown) => TValidatedData,
+    ) {
         const rawInitialData: any = toRaw(initialData)
 
         this.data = reactive(structuredClone(rawInitialData))
@@ -100,180 +133,104 @@ export default class Form<
     /**
      * Validates the given field value against the specified or default validation rules set.
      *
+     * Full validation is performed using the `validationFn` provided during form initialization, but
+     * only errors related to the specified field are updated.
+     *
      * @return {boolean} - Returns true if the field is valid, false otherwise.
      */
     public validateField(
         field: string,
-        value?: any,
-        validationRulesSet?: ValidationRulesSet,
     ): boolean {
-        const fieldErrors = this.getFieldValidationErrors(field, value, validationRulesSet, [], new Errors())
-
-        if (this.errors.any()) {
-            this.errors.clear(field)
+        if (!this.validationFn) {
+            return true
         }
 
-        this.errors.add(fieldErrors.all())
+        try {
+            this.validationFn(this.data)
 
-        return !fieldErrors.any()
+            this.errors.clear(field)
+
+            return true
+        } catch (e: unknown) {
+            if (e instanceof ValidationError) {
+                const fieldErrors = e.errors.get(field)
+
+                if (fieldErrors.length) {
+                    this.errors.clear(field)
+                    this.errors.add({ [field]: fieldErrors })
+
+                    return false
+                } else {
+                    this.errors.clear(field)
+
+                    return true
+                }
+            } else {
+                throw e
+            }
+        }
     }
 
     /**
      * Validates the data against the provided validation rules.
-     * If no data or validation rules are provided, it uses the default data and validation rules from the class.
+     * Every call updates form internal errors state.
      *
-     * @return {boolean} True if the validation was successful, false otherwise.
+     * @return Validated data if validation passes, Errors otherwise.
      */
-    public validate(dataToValidate: AnyObject | null = null, validationRulesSet?: ValidationRulesSet): boolean {
-        const useData = dataToValidate ?? this.data
-
-        if (!useData) {
-            throw new Error('No data provided to validate')
+    public validate(): TValidatedData | Errors {
+        if (!this.validationFn) {
+            return this.data as unknown as TValidatedData
         }
 
-        const fields = Object.keys(useData)
+        try {
+            const validatedData = this.validationFn(this.data)
 
-        let cleared = false
-        let hasErrors = false
-
-        fields.forEach(field => {
-            const calculatedErrors = this.getFieldValidationErrors(field, useData[field], validationRulesSet ?? undefined)
-
-            if (calculatedErrors.any()) {
-                hasErrors = true
-
-                if (!cleared) {
-                    this.errors.clear()
-                    cleared = true
-                }
-
-                this.errors.add(calculatedErrors.all())
-            }
-        })
-
-        if (!cleared) {
             this.errors.clear()
-        }
 
-        if (hasErrors) {
-            this.logger.warn('Validation failed', this.errors.all())
-        }
+            return validatedData
+        } catch (e: unknown) {
+            if (e instanceof ValidationError) {
+                const allErrors = e.errors.all()
 
-        return !hasErrors
+                this.errors.record(allErrors)
+
+                this.logger.warn('Validation failed', allErrors)
+
+                return this.errors
+            } else {
+                throw e
+            }
+        }
     }
-
-    protected defaultValidationRules = {
-        //
-    }
-
-    private getFieldValidationErrors(
-        field: string,
-        value?: any,
-        validationRulesSet?: ValidationRulesSet,
-        path: string[] = [],
-        calculatedErrors = new Errors(),
-    ): Errors {
-        value ??= this.data[field]
-
-        if (!validationRulesSet) {
-            validationRulesSet = toValue(this.validationRules) || this.defaultValidationRules
-        }
-
-        const currentRules = validationRulesSet[field]
-
-        if (isNestedRules(currentRules)) {
-            // It is nested rules
-            for (const nestedField in currentRules) {
-                if (!value || !(nestedField in value)) {
-                    continue
-                }
-
-                const errors = this.getFieldValidationErrors(nestedField, value[nestedField], currentRules, [...path, field], calculatedErrors)
-
-                calculatedErrors.add(errors.all())
-            }
-        }
-
-        if (currentRules && !isSimpleRules(currentRules)) {
-            return calculatedErrors
-        }
-
-        let rules = currentRules
-
-        if (!rules) {
-            return calculatedErrors
-        }
-
-        rules = normalizeRules(rules)
-
-        for (const handler of rules) {
-            const errors = handler(value, field, getProp(this.data, path) ?? this.data)
-
-            if (!errors) {
-                continue
-            }
-
-            if (typeof errors === 'object') {
-                for (const nfield in errors) {
-                    this.getFieldValidationErrors(nfield, value[nfield], errors as unknown as ValidationRulesSet, [...path, field], calculatedErrors)
-                }
-
-                continue
-            }
-
-            const tErrors = normalizeErrors(errors, [...path, field].join('.'))
-
-            // Apply template to errors
-            for (const field in tErrors) {
-                const lastField = field.split('.').pop() ?? field
-
-                for (const i in tErrors[field]) {
-                    tErrors[field][i] = templateString(tErrors[field][i], {
-                        field: toHumanPhrase(lastField),
-                    })
-                }
-            }
-
-            calculatedErrors.add(tErrors)
-        }
-
-        return calculatedErrors
-    }
-
-    //
 
     /**
      * Returns a function that can be used to submit the form.
      */
-    public useSubmit<Result>(resolver: (data: TData) => Promise<Result> | Result, options?: UseSubmitOptions): (() => Promise<void>)
-    public useSubmit<Result>(options: UseSubmitOptions & UseSubmitResolverOptions<Result, TData>): (() => Promise<void>)
-
-    public useSubmit(_resolver: unknown, _options?: unknown): unknown {
-        let options: UseSubmitOptions & UseSubmitResolverOptions<any>
-
-        if (typeof _resolver === 'function') {
-            options = {
-                ..._options ?? {},
-                resolver: _resolver as any,
-            }
-        } else {
-            options = _resolver as any
-        }
-
+    public useSubmit<Result>(
+        resolver: (data: TValidatedData) => Promise<Result> | Result,
+        options: UseSubmitOptions = {},
+    ): (() => Promise<void>) {
         return this.debounce(async () => {
             this.sent.value = false
 
-            if ((options.validate ?? true)) {
-                const baseValidationResult = this.validate()
-                const onValidateResult = options.onValidate?.()
+            let validatedData: TValidatedData = this.data as unknown as TValidatedData
 
-                if (!baseValidationResult || onValidateResult === false) {
+            if ((options.validate ?? true)) {
+                const validationResult = this.validate()
+
+                const onAfterValidateResult = options.onAfterValidate?.()
+
+                if (this.errors.any() || onAfterValidateResult === false) {
                     return
+                }
+
+                if (!(validationResult instanceof Errors)) {
+                    validatedData = validationResult
                 }
             }
 
             try {
-                await options.resolver(this.data)
+                await resolver(validatedData)
 
                 this.error.value = undefined
                 this.sent.value = true
@@ -284,9 +241,16 @@ export default class Form<
                     this.reset()
                 }
             } catch (e: unknown) {
-                this.error.value = e
+                const errorParser = options.errorParser ?? this.parseErrorsObjectFromHttpError.bind(this)
 
-                this.parseError(e)
+                const parsedError = errorParser(e)
+
+                if (parsedError) {
+                    this.errors.record(parsedError.errors.all())
+                    this.error.value = parsedError
+                } else {
+                    this.error.value = e
+                }
 
                 if (options.onError) {
                     const result = options.onError(e)
@@ -297,20 +261,54 @@ export default class Form<
                 }
 
                 if (!options.silent) {
-                    throw e
+                    throw this.error.value
                 }
             }
         })
     }
 
     /**
-     * Override this method to parse your app default errors.
+     * Default error parser to extract validation errors from various error response structures.
+     *
+     * Expects error to potentially contain validation errors in nested properties and follow UnparsedErrorsObject type
+     * Checks multiple common paths to locate validation errors.
      */
-    protected parseError(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        _error: unknown,
-    ): void {
-        // Override this method to parse your API error responses
+    protected parseErrorsObjectFromHttpError(
+        error: unknown,
+    ): ValidationError | undefined {
+        if (error instanceof ValidationError) {
+            return error
+        }
+
+        if (typeof error !== 'object' || error === null) {
+            return
+        }
+
+        const paths = [
+            'data.errors',
+            'data.validationErrors',
+            'data.data.errors',
+            'data.data.validationErrors',
+
+            'response.data.errors',
+            'response.data.validationErrors',
+
+            'response._data.errors',
+            'response._data.validationErrors',
+            '_data.errors',
+            '_data.validationErrors',
+        ]
+
+        for (const path of paths) {
+            const raw = getObjectProp(error, path)
+
+            if (raw && isUnparsedErrorsObject(raw)) {
+                const message = error instanceof Error ? error.message : undefined
+                const errors = new Errors(parseErrors(raw))
+
+                return new ValidationError(errors, message)
+            }
+        }
     }
 
     //
@@ -336,42 +334,4 @@ export default class Form<
             }
         }
     }
-
-    //
-
-    public destructable(): this {
-        return makeDestructurableClass(this)
-    }
-}
-
-const normalizeRules = (rules: ValidationRule | ValidationRule[]) => {
-    return Array.isArray(rules) ? rules : [rules]
-}
-
-const isNestedRules = (rules: ValidationRulesSet[keyof ValidationRulesSet]): rules is {
-    [field: string]: ValidationRulesSet
-} => {
-    return typeof rules === 'object' && !Array.isArray(rules)
-}
-
-const isSimpleRules = (rules: ValidationRulesSet[keyof ValidationRulesSet]): rules is ValidationRule | ValidationRule[] => {
-    return !isNestedRules(rules)
-}
-
-const normalizeErrors = (errors: ValidationMessage, field: string) => {
-    const result: ErrorsObject = {}
-
-    if (Array.isArray(errors) || typeof errors !== 'object') {
-        result[field] = typeof errors === 'string' ? [errors] : errors
-    } else {
-        Object.keys(errors).forEach(key => {
-            if (typeof errors[key] === 'string') {
-                result[key] = [errors[key] as string]
-            } else {
-                result[key] = errors[key] as string[]
-            }
-        })
-    }
-
-    return result
 }
