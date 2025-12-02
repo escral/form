@@ -10,8 +10,6 @@ import {
 
 import Form from '~/vue/lib/Form'
 import Errors from '~/lib/Errors'
-import { z } from 'zod'
-import { useZodFormValidation } from '~/validation/shorthand/useZodFormValidation'
 import { ValidationError } from '~/index'
 
 type TestData = {

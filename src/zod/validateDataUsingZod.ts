@@ -1,6 +1,6 @@
 import type { z } from 'zod'
-import { zodErrorToFormErrors } from '~/utils/zodErrorToFormErrors'
 import ValidationError from '~/error/ValidationError'
+import { zodErrorToFormErrors } from '~/zod/zodErrorToFormErrors'
 
 /**
  * @throws ValidationError

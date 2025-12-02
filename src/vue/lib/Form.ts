@@ -47,6 +47,8 @@ type UseSubmitOptions = {
     errorParser?: (error: unknown) => ValidationError | undefined
 }
 
+export type ValidationFn<TValidatedData> = (data: unknown) => TValidatedData
+
 /**
  * Represents a Form object that handles form data, validation, and form state.
  */
@@ -67,7 +69,7 @@ export default class Form<
 
     public constructor(
         initialData: TData,
-        private validationFn?: (data: unknown) => TValidatedData,
+        private validationFn?: ValidationFn<TValidatedData> | undefined,
     ) {
         const rawInitialData: any = toRaw(initialData)
 
