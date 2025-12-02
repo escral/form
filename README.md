@@ -6,3 +6,4 @@ A set of tools to help building forms.
 
 - Callback validation
   - [ ] Predefined validation rules
+- [ ] Get rid of zod/mini dependency

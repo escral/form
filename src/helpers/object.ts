@@ -48,35 +48,3 @@ export function setProp<T extends AnyObject>(item: T, path: string | string[], v
 export function isEqual<T extends AnyObject>(a: T, b: T): boolean {
     return JSON.stringify(a) === JSON.stringify(b)
 }
-
-export function makeDestructurableClass<
-    T extends AnyObject,
-    G extends {
-        // eslint-disable-next-line space-before-function-paren
-        [K in keyof T]?: (target: T) => T[K]
-    },
->(classInstance: T, additionalGetters?: G): T {
-    return new Proxy(classInstance, {
-        get(target, prop) {
-            if (additionalGetters && (prop in additionalGetters)) {
-                return additionalGetters[prop as string]?.(target)
-            }
-
-            const value = Reflect.get(target, prop) as any
-
-            if (typeof value === 'function') {
-                return value.bind(classInstance)
-            }
-
-            return value
-
-            // if (isRef(value) || isReactive(value)) {
-            //     return value
-            // }
-            //
-            // useLogger('object-helper').error(`Property "${String(prop)}" is not a ref or reactive. Destructing it will lose reactivity.`, 'Class:', target)
-            //
-            // throw new Error(`Property "${String(prop)}" is not a ref or reactive. Destructing it will lose reactivity.`)
-        },
-    })
-}

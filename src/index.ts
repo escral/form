@@ -8,7 +8,3 @@ export { default as ValidationError } from '~/error/ValidationError'
 export type { AnyObject, PropsPathSimple, PropType } from '~/types/utils'
 export type { ValidationRule, ValidationRulesSet, ValidationMessage } from '~/types/validation'
 
-// Helpers (exported for convenience)
-export { capitalize, templateString, toHumanPhrase } from '~/helpers/string'
-export { getProp, isEqual, makeDestructurableClass, setProp, updateProps } from '~/helpers/object'
-

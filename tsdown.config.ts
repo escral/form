@@ -8,9 +8,17 @@ export default defineConfig([
         clean: true,
     },
     {
+        entry: ['src/zod/index.ts'],
+        format: ['esm'],
+        dts: true,
+        outDir: 'dist/zod',
+        external: ['zod'],
+    },
+    {
         entry: ['src/vue/index.ts'],
         format: ['esm'],
         dts: true,
         outDir: 'dist/vue',
+        external: ['vue', 'zod/mini'],
     },
 ])
